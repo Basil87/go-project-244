@@ -29,6 +29,7 @@ func main() {
 	   gendiff [global options]
 	
 	GLOBAL OPTIONS:
+	   --format string, -f string  output format (default: "stylish")
 	   --help, -h                  show help
 `
 
