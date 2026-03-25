@@ -1,6 +1,7 @@
 package main
 
 import (
+	"code"
 	"context"
 	"fmt"
 	"log"
@@ -14,8 +15,30 @@ func main() {
 		Name:  "difference-calculator",
 		Usage: "Compare and get diff of structs",
 
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "format",
+				Aliases: []string{"f"},
+				Value:   "stylish",
+				Usage:   "use human-readable format",
+			},
+		},
+
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			fmt.Println("Oh, Hi Mark!")
+
+			if cmd.Args().Len() == 0 {
+				fmt.Println("path is required")
+				return nil
+			}
+
+			file1 := cmd.Args().Get(0)
+			file2 := cmd.Args().Get(1)
+			result, err := code.GetParsData(file1, file2)
+			if err != nil {
+				return err
+			}
+
+			fmt.Println(result)
 			return nil
 		},
 	}
