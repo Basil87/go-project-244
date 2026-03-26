@@ -1,2 +1,5 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/Basil87/go-project-244/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Basil87/go-project-244/actions)
+
+### asciinema recording:
+[![asciicast](https://asciinema.org/a/0BqyMY0Ky9AnYY7I.svg)](https://asciinema.org/a/0BqyMY0Ky9AnYY7I)
