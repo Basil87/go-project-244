@@ -11,6 +11,9 @@ import (
 
 func GetDiff(file1, file2 string) (string, error) {
 	fileContent1, err := GetFileData(file1)
+	if err != nil {
+		return "", err
+	}
 	fileContent2, err := GetFileData(file2)
 	if err != nil {
 		return "", err
