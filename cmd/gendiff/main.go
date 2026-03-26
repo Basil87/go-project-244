@@ -33,7 +33,7 @@ func main() {
 
 			file1 := cmd.Args().Get(0)
 			file2 := cmd.Args().Get(1)
-			result, err := code.GetParsData(file1, file2)
+			result, err := code.GetDiff(file1, file2)
 			if err != nil {
 				return err
 			}
