@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
+
+	"sigs.k8s.io/yaml"
 )
 
 func GetDiff(file1, file2 string) (string, error) {
@@ -53,8 +56,15 @@ func GetFileData(path string) (map[string]any, error) {
 		return fileContent, err
 	}
 
-	if err := json.Unmarshal(data, &fileContent); err != nil {
-		return fileContent, fmt.Errorf("invalid json: %w", err)
+	ext := strings.ToLower(filepath.Ext(path))
+	if ext == ".yaml" || ext == ".yml" {
+		if err := yaml.Unmarshal(data, &fileContent); err != nil {
+			return fileContent, fmt.Errorf("invalid yaml: %w", err)
+		}
+	} else {
+		if err := json.Unmarshal(data, &fileContent); err != nil {
+			return fileContent, fmt.Errorf("invalid json: %w", err)
+		}
 	}
 
 	return fileContent, nil
