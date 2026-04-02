@@ -15,7 +15,7 @@ func TestGetDiff_Success(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n  - a: 1\n  + a: 2\n}"
+	expected := "{\n..- a: 1\n..+ a: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -50,7 +50,7 @@ func TestGetDiff_IdenticalFiles(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n    a: 1\n}"
+	expected := "{\n..  a: 1\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -66,7 +66,7 @@ func TestGetDiff_KeysOnlyInFirstFile(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n  - a: 1\n}"
+	expected := "{\n..- a: 1\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -82,7 +82,7 @@ func TestGetDiff_KeysOnlyInSecondFile(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n  + b: 2\n}"
+	expected := "{\n..+ b: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -98,7 +98,7 @@ func TestGetDiff_YAMLFilesChangedValue(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n  - a: 1\n  + a: 2\n}"
+	expected := "{\n..- a: 1\n..+ a: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -114,7 +114,7 @@ func TestGetDiff_YAMLFilesIdentical(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n    host: hexlet.io\n}"
+	expected := "{\n..  host: hexlet.io\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -130,9 +130,64 @@ func TestGetDiff_YAMLFilesKeyRemoved(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n    a: 1\n  - b: 2\n}"
+	expected := "{\n..  a: 1\n..- b: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestGetDiff_NestedStructures(t *testing.T) {
+	got, err := GetDiff("mock/file1.json", "mock/file2.json")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := "{\n" +
+		"..  common: {\n" +
+		"......+ follow: false\n" +
+		"......  setting1: Value 1\n" +
+		"......- setting2: 200\n" +
+		"......- setting3: true\n" +
+		"......+ setting3: null\n" +
+		"......+ setting4: blah blah\n" +
+		"......+ setting5: {\n" +
+		"..........  key5: value5\n" +
+		"........}\n" +
+		"......  setting6: {\n" +
+		"..........  doge: {\n" +
+		"..............- wow: \n" +
+		"..............+ wow: so much\n" +
+		"............}\n" +
+		"..........  key: value\n" +
+		"..........+ ops: vops\n" +
+		"........}\n" +
+		"....}\n" +
+		"..  group1: {\n" +
+		"......- baz: bas\n" +
+		"......+ baz: bars\n" +
+		"......  foo: bar\n" +
+		"......- nest: {\n" +
+		"..........  key: value\n" +
+		"........}\n" +
+		"......+ nest: str\n" +
+		"....}\n" +
+		"..- group2: {\n" +
+		"......  abc: 12345\n" +
+		"......  deep: {\n" +
+		"..........  id: 45\n" +
+		"........}\n" +
+		"....}\n" +
+		"..+ group3: {\n" +
+		"......  deep: {\n" +
+		"..........  id: {\n" +
+		"..............  number: 45\n" +
+		"............}\n" +
+		"........}\n" +
+		"......  fee: 100500\n" +
+		"....}\n" +
+		"}"
+	if got != expected {
+		t.Fatalf("got:\n%s\n\nwant:\n%s", got, expected)
 	}
 }
 
@@ -146,7 +201,7 @@ func TestGetDiff_MixedJSONAndYAML(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n  - a: 1\n  + a: 2\n}"
+	expected := "{\n..- a: 1\n..+ a: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}

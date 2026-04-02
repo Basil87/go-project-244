@@ -60,7 +60,7 @@ func TestCompareJsons_KeyOnlyInFirst(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n  - a: 1\n}"
+	expected := "{\n..- a: 1\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -75,7 +75,7 @@ func TestCompareJsons_KeyOnlyInSecond(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n  + b: 2\n}"
+	expected := "{\n..+ b: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -90,7 +90,7 @@ func TestCompareJsons_SameKeysSameValues(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n    x: hello\n}"
+	expected := "{\n..  x: hello\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -105,7 +105,7 @@ func TestCompareJsons_SameKeysDiffValues(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "{\n  - x: 1\n  + x: 2\n}"
+	expected := "{\n..- x: 1\n..+ x: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
