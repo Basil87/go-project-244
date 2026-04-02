@@ -11,8 +11,8 @@ func FormatStylish(nodes []diffNode) string {
 }
 
 func renderDiff(nodes []diffNode, depth int) string {
-	indent := strings.Repeat(" ", (depth-1)*4)
-	signPrefix := strings.Repeat(" ", depth*4-2)
+	indent := strings.Repeat(".", (depth-1)*4)
+	signPrefix := strings.Repeat(".", depth*4-2)
 	var sb strings.Builder
 	sb.WriteString("{\n")
 	for _, node := range nodes {
@@ -40,8 +40,8 @@ func renderMap(m map[string]any, depth int) string {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	indent := strings.Repeat(" ", (depth-1)*4)
-	signPrefix := strings.Repeat(" ", depth*4-2)
+	indent := strings.Repeat(".", (depth-1)*4)
+	signPrefix := strings.Repeat(".", depth*4-2)
 	var sb strings.Builder
 	sb.WriteString("{\n")
 	for _, k := range keys {
