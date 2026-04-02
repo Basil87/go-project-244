@@ -1,37 +1,23 @@
 package code
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 )
-
-func writeTempJSON(t *testing.T, dir, name, content string) string {
-	t.Helper()
-
-	path := filepath.Join(dir, name)
-
-	err := os.WriteFile(path, []byte(content), 0644)
-	if err != nil {
-		t.Fatalf("write temp file: %v", err)
-	}
-
-	return path
-}
 
 func TestGetDiff_Success(t *testing.T) {
 	dir := t.TempDir()
 
-	file1 := writeTempJSON(t, dir, "file1.json", `{"a":1}`)
-	file2 := writeTempJSON(t, dir, "file2.json", `{"a":2}`)
+	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, "file2.json", `{"a":2}`)
 
 	got, err := GetDiff(file1, file2)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if got != "вот и результат" {
-		t.Fatalf("got %q, want %q", got, "вот и результат")
+	expected := "{\n  - a: 1\n  + a: 2\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
 	}
 }
 
@@ -40,5 +26,128 @@ func TestGetDiff_FirstFileMissing(t *testing.T) {
 
 	if err == nil {
 		t.Fatal("expected error")
+	}
+}
+
+func TestGetDiff_SecondFileMissing(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
+
+	_, err := GetDiff(file1, "missing2.json")
+
+	if err == nil {
+		t.Fatal("expected error")
+	}
+}
+
+func TestGetDiff_IdenticalFiles(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, "file2.json", `{"a":1}`)
+
+	got, err := GetDiff(file1, file2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := "{\n    a: 1\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestGetDiff_KeysOnlyInFirstFile(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, "file2.json", `{}`)
+
+	got, err := GetDiff(file1, file2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := "{\n  - a: 1\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestGetDiff_KeysOnlyInSecondFile(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempJSON(t, dir, "file1.json", `{}`)
+	file2 := WriteTempJSON(t, dir, "file2.json", `{"b":2}`)
+
+	got, err := GetDiff(file1, file2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := "{\n  + b: 2\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestGetDiff_YAMLFilesChangedValue(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempYAML(t, dir, "file1.yaml", "a: 1\n")
+	file2 := WriteTempYAML(t, dir, "file2.yaml", "a: 2\n")
+
+	got, err := GetDiff(file1, file2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := "{\n  - a: 1\n  + a: 2\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestGetDiff_YAMLFilesIdentical(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempYAML(t, dir, "file1.yaml", "host: hexlet.io\n")
+	file2 := WriteTempYAML(t, dir, "file2.yaml", "host: hexlet.io\n")
+
+	got, err := GetDiff(file1, file2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := "{\n    host: hexlet.io\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestGetDiff_YAMLFilesKeyRemoved(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempYAML(t, dir, "file1.yaml", "a: 1\nb: 2\n")
+	file2 := WriteTempYAML(t, dir, "file2.yaml", "a: 1\n")
+
+	got, err := GetDiff(file1, file2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := "{\n    a: 1\n  - b: 2\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestGetDiff_MixedJSONAndYAML(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
+	file2 := WriteTempYAML(t, dir, "file2.yaml", "a: 2\n")
+
+	got, err := GetDiff(file1, file2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := "{\n  - a: 1\n  + a: 2\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
 	}
 }

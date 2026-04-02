@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
+
+	"sigs.k8s.io/yaml"
 )
 
 func GetDiff(file1, file2 string) (string, error) {
@@ -19,11 +22,12 @@ func GetDiff(file1, file2 string) (string, error) {
 		return "", err
 	}
 
-	if err := compareJsons(fileContent1, fileContent2); err != nil {
+	result, err := compareJsons(fileContent1, fileContent2)
+	if err != nil {
 		return "", err
 	}
 
-	return "вот и результат", nil
+	return result, nil
 }
 
 func GetFileData(path string) (map[string]any, error) {
@@ -52,8 +56,15 @@ func GetFileData(path string) (map[string]any, error) {
 		return fileContent, err
 	}
 
-	if err := json.Unmarshal(data, &fileContent); err != nil {
-		return fileContent, fmt.Errorf("invalid json: %w", err)
+	ext := strings.ToLower(filepath.Ext(path))
+	if ext == ".yaml" || ext == ".yml" {
+		if err := yaml.Unmarshal(data, &fileContent); err != nil {
+			return fileContent, fmt.Errorf("invalid yaml: %w", err)
+		}
+	} else {
+		if err := json.Unmarshal(data, &fileContent); err != nil {
+			return fileContent, fmt.Errorf("invalid json: %w", err)
+		}
 	}
 
 	return fileContent, nil
@@ -76,11 +87,9 @@ func detectFileType(path string) (string, error) {
 	return contentType, nil
 }
 
-func compareJsons(fileContent1, fileContent2 map[string]any) error {
+func compareJsons(fileContent1, fileContent2 map[string]any) (string, error) {
 	result := make(map[string]any)
 	var keysSlice []string
-	//var uniqueValue1 map[string]any
-	//var uniqueValue2 map[string]any
 	for key, value := range fileContent1 {
 		secondValue, ok := fileContent2[key]
 		if !ok || secondValue != value {
@@ -97,14 +106,34 @@ func compareJsons(fileContent1, fileContent2 map[string]any) error {
 		keysSlice = append(keysSlice, "+ "+key)
 	}
 	sort.Slice(keysSlice, func(i, j int) bool {
-		return normalize(keysSlice[i]) < normalize(keysSlice[j])
+		ni := normalize(keysSlice[i])
+		nj := normalize(keysSlice[j])
+		if ni != nj {
+			return ni < nj
+		}
+		return prefixOrder(keysSlice[i]) < prefixOrder(keysSlice[j])
 	})
-	fmt.Println("{")
+	var sb strings.Builder
+	sb.WriteString("{\n")
 	for _, key := range keysSlice {
-		fmt.Println("	", key, ": ", result[key])
+		if strings.HasPrefix(key, "+ ") || strings.HasPrefix(key, "- ") {
+			sb.WriteString(fmt.Sprintf("  %s: %v\n", key, result[key]))
+		} else {
+			sb.WriteString(fmt.Sprintf("    %s: %v\n", key, result[key]))
+		}
 	}
-	fmt.Println("}")
-	return nil
+	sb.WriteString("}")
+	return sb.String(), nil
+}
+
+func prefixOrder(s string) int {
+	if strings.HasPrefix(s, "- ") {
+		return 0
+	}
+	if strings.HasPrefix(s, "+ ") {
+		return 2
+	}
+	return 1
 }
 
 func normalize(s string) string {
