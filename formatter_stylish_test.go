@@ -18,7 +18,7 @@ func TestFormatStylish_FlatDiff(t *testing.T) {
 		{key: "a", status: statusAdded, newVal: float64(2)},
 	}
 	got := FormatStylish(nodes)
-	expected := "{\n  - a: 1\n  + a: 2\n}"
+	expected := "{\n..- a: 1\n..+ a: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -35,7 +35,7 @@ func TestFormatStylish_Nested(t *testing.T) {
 		},
 	}
 	got := FormatStylish(nodes)
-	expected := "{\n    obj: {\n        x: hello\n    }\n}"
+	expected := "{\n..  obj: {\n......  x: hello\n....}\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
@@ -67,7 +67,7 @@ func TestGetDiffWithFormatter_DefaultIsStylish(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	expected := "{\n  - a: 1\n  + a: 2\n}"
+	expected := "{\n..- a: 1\n..+ a: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
 	}
