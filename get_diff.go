@@ -13,7 +13,13 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+type Formatter func([]diffNode) string
+
 func GetDiff(file1, file2 string) (string, error) {
+	return GetDiffWithFormatter(file1, file2, FormatStylish)
+}
+
+func GetDiffWithFormatter(file1, file2 string, format Formatter) (string, error) {
 	fileContent1, err := GetFileData(file1)
 	if err != nil {
 		return "", err
@@ -22,13 +28,7 @@ func GetDiff(file1, file2 string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	result, err := compareJsons(fileContent1, fileContent2)
-	if err != nil {
-		return "", err
-	}
-
-	return result, nil
+	return format(buildDiff(fileContent1, fileContent2)), nil
 }
 
 func GetFileData(path string) (map[string]any, error) {
@@ -107,8 +107,7 @@ type diffNode struct {
 }
 
 func compareJsons(fileContent1, fileContent2 map[string]any) (string, error) {
-	nodes := buildDiff(fileContent1, fileContent2)
-	return renderDiff(nodes, 1), nil
+	return FormatStylish(buildDiff(fileContent1, fileContent2)), nil
 }
 
 func buildDiff(m1, m2 map[string]any) []diffNode {
@@ -151,67 +150,6 @@ func allKeys(m1, m2 map[string]any) []string {
 		keys = append(keys, k)
 	}
 	return keys
-}
-
-func renderDiff(nodes []diffNode, depth int) string {
-	indent := strings.Repeat(" ", (depth-1)*4)
-	signPrefix := strings.Repeat(" ", depth*4-2)
-	var sb strings.Builder
-	sb.WriteString("{\n")
-	for _, node := range nodes {
-		switch node.status {
-		case statusNested:
-			sb.WriteString(fmt.Sprintf("%s  %s: %s\n", signPrefix, node.key, renderDiff(node.children, depth+1)))
-		case statusUnchanged:
-			sb.WriteString(fmt.Sprintf("%s  %s: %s\n", signPrefix, node.key, formatValue(node.oldVal, depth)))
-		case statusRemoved:
-			sb.WriteString(fmt.Sprintf("%s- %s: %s\n", signPrefix, node.key, formatValue(node.oldVal, depth)))
-		case statusAdded:
-			sb.WriteString(fmt.Sprintf("%s+ %s: %s\n", signPrefix, node.key, formatValue(node.newVal, depth)))
-		case statusChanged:
-			sb.WriteString(fmt.Sprintf("%s- %s: %s\n", signPrefix, node.key, formatValue(node.oldVal, depth)))
-			sb.WriteString(fmt.Sprintf("%s+ %s: %s\n", signPrefix, node.key, formatValue(node.newVal, depth)))
-		}
-	}
-	sb.WriteString(indent + "}")
-	return sb.String()
-}
-
-func renderMap(m map[string]any, depth int) string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	indent := strings.Repeat(" ", (depth-1)*4)
-	signPrefix := strings.Repeat(" ", depth*4-2)
-	var sb strings.Builder
-	sb.WriteString("{\n")
-	for _, k := range keys {
-		sb.WriteString(fmt.Sprintf("%s  %s: %s\n", signPrefix, k, formatValue(m[k], depth)))
-	}
-	sb.WriteString(indent + "}")
-	return sb.String()
-}
-
-func formatValue(v any, depth int) string {
-	if m, ok := v.(map[string]any); ok {
-		return renderMap(m, depth+1)
-	}
-	return formatScalar(v)
-}
-
-func formatScalar(v any) string {
-	if v == nil {
-		return "null"
-	}
-	if f, ok := v.(float64); ok {
-		if f == float64(int64(f)) {
-			return fmt.Sprintf("%d", int64(f))
-		}
-		return fmt.Sprintf("%g", f)
-	}
-	return fmt.Sprintf("%v", v)
 }
 
 func prefixOrder(s string) int {
