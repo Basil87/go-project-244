@@ -136,6 +136,61 @@ func TestGetDiff_YAMLFilesKeyRemoved(t *testing.T) {
 	}
 }
 
+func TestGetDiff_NestedStructures(t *testing.T) {
+	got, err := GetDiff("mock/file1.json", "mock/file2.json")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := "{\n" +
+		"    common: {\n" +
+		"      + follow: false\n" +
+		"        setting1: Value 1\n" +
+		"      - setting2: 200\n" +
+		"      - setting3: true\n" +
+		"      + setting3: null\n" +
+		"      + setting4: blah blah\n" +
+		"      + setting5: {\n" +
+		"            key5: value5\n" +
+		"        }\n" +
+		"        setting6: {\n" +
+		"            doge: {\n" +
+		"              - wow: \n" +
+		"              + wow: so much\n" +
+		"            }\n" +
+		"            key: value\n" +
+		"          + ops: vops\n" +
+		"        }\n" +
+		"    }\n" +
+		"    group1: {\n" +
+		"      - baz: bas\n" +
+		"      + baz: bars\n" +
+		"        foo: bar\n" +
+		"      - nest: {\n" +
+		"            key: value\n" +
+		"        }\n" +
+		"      + nest: str\n" +
+		"    }\n" +
+		"  - group2: {\n" +
+		"        abc: 12345\n" +
+		"        deep: {\n" +
+		"            id: 45\n" +
+		"        }\n" +
+		"    }\n" +
+		"  + group3: {\n" +
+		"        deep: {\n" +
+		"            id: {\n" +
+		"                number: 45\n" +
+		"            }\n" +
+		"        }\n" +
+		"        fee: 100500\n" +
+		"    }\n" +
+		"}"
+	if got != expected {
+		t.Fatalf("got:\n%s\n\nwant:\n%s", got, expected)
+	}
+}
+
 func TestGetDiff_MixedJSONAndYAML(t *testing.T) {
 	dir := t.TempDir()
 	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
