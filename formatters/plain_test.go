@@ -9,7 +9,7 @@ func TestFormatPlain_Empty(t *testing.T) {
 	got := FormatPlain([]diff.DiffNode{})
 	expected := ""
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
@@ -21,6 +21,6 @@ func TestFormatPlain_FlatDiff(t *testing.T) {
 	got := FormatPlain(nodes)
 	expected := "Property 'a' was removed\nProperty 'a' was added with value: 2"
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }

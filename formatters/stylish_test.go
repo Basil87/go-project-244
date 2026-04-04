@@ -5,11 +5,13 @@ import (
 	"testing"
 )
 
+const assertGotWant = "got %q, want %q"
+
 func TestFormatStylish_Empty(t *testing.T) {
 	got := FormatStylish([]diff.DiffNode{})
 	expected := "{\n}"
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
@@ -21,7 +23,7 @@ func TestFormatStylish_FlatDiff(t *testing.T) {
 	got := FormatStylish(nodes)
 	expected := "{\n..- a: 1\n..+ a: 2\n}"
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
@@ -38,6 +40,6 @@ func TestFormatStylish_Nested(t *testing.T) {
 	got := FormatStylish(nodes)
 	expected := "{\n..  obj: {\n......  x: hello\n....}\n}"
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
