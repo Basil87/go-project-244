@@ -1,6 +1,8 @@
 package code
 
 import (
+	"code/diff"
+	"code/formatters"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,10 +15,10 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-type Formatter func([]diffNode) string
+type Formatter func([]diff.DiffNode) string
 
 func GetDiff(file1, file2 string) (string, error) {
-	return GetDiffWithFormatter(file1, file2, FormatStylish)
+	return GetDiffWithFormatter(file1, file2, formatters.FormatStylish)
 }
 
 func GetDiffWithFormatter(file1, file2 string, format Formatter) (string, error) {
@@ -76,7 +78,9 @@ func detectFileType(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	buffer := make([]byte, 512)
 	n, err := f.Read(buffer)
@@ -88,32 +92,14 @@ func detectFileType(path string) (string, error) {
 	return contentType, nil
 }
 
-type diffStatus int
-
-const (
-	statusUnchanged diffStatus = iota
-	statusRemoved
-	statusAdded
-	statusChanged
-	statusNested
-)
-
-type diffNode struct {
-	key      string
-	status   diffStatus
-	oldVal   any
-	newVal   any
-	children []diffNode
-}
-
 func compareJsons(fileContent1, fileContent2 map[string]any) (string, error) {
-	return FormatStylish(buildDiff(fileContent1, fileContent2)), nil
+	return formatters.FormatStylish(buildDiff(fileContent1, fileContent2)), nil
 }
 
-func buildDiff(m1, m2 map[string]any) []diffNode {
+func buildDiff(m1, m2 map[string]any) []diff.DiffNode {
 	keys := allKeys(m1, m2)
 	sort.Strings(keys)
-	var nodes []diffNode
+	var nodes []diff.DiffNode
 	for _, key := range keys {
 		v1, in1 := m1[key]
 		v2, in2 := m2[key]
@@ -122,16 +108,16 @@ func buildDiff(m1, m2 map[string]any) []diffNode {
 			sub1, ok1 := v1.(map[string]any)
 			sub2, ok2 := v2.(map[string]any)
 			if ok1 && ok2 {
-				nodes = append(nodes, diffNode{key: key, status: statusNested, children: buildDiff(sub1, sub2)})
+				nodes = append(nodes, diff.DiffNode{Key: key, Status: diff.StatusNested, Children: buildDiff(sub1, sub2)})
 			} else if reflect.DeepEqual(v1, v2) {
-				nodes = append(nodes, diffNode{key: key, status: statusUnchanged, oldVal: v1})
+				nodes = append(nodes, diff.DiffNode{Key: key, Status: diff.StatusUnchanged, OldVal: v1})
 			} else {
-				nodes = append(nodes, diffNode{key: key, status: statusChanged, oldVal: v1, newVal: v2})
+				nodes = append(nodes, diff.DiffNode{Key: key, Status: diff.StatusChanged, OldVal: v1, NewVal: v2})
 			}
 		case in1:
-			nodes = append(nodes, diffNode{key: key, status: statusRemoved, oldVal: v1})
+			nodes = append(nodes, diff.DiffNode{Key: key, Status: diff.StatusRemoved, OldVal: v1})
 		default:
-			nodes = append(nodes, diffNode{key: key, status: statusAdded, newVal: v2})
+			nodes = append(nodes, diff.DiffNode{Key: key, Status: diff.StatusAdded, NewVal: v2})
 		}
 	}
 	return nodes

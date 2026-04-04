@@ -1,23 +1,33 @@
 package code
 
 import (
+	"code/diff"
+	"code/formatters"
 	"testing"
+)
+
+const (
+	testFile1JSON = "file1.json"
+	testFile2JSON = "file2.json"
+	errUnexpected = "unexpected error: %v"
+	assertGotWant = "got %q, want %q"
+	diffAChanged  = "{\n..- a: 1\n..+ a: 2\n}"
 )
 
 func TestGetDiff_Success(t *testing.T) {
 	dir := t.TempDir()
 
-	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
-	file2 := WriteTempJSON(t, dir, "file2.json", `{"a":2}`)
+	file1 := WriteTempJSON(t, dir, testFile1JSON, `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, testFile2JSON, `{"a":2}`)
 
 	got, err := GetDiff(file1, file2)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf(errUnexpected, err)
 	}
 
-	expected := "{\n..- a: 1\n..+ a: 2\n}"
+	expected := diffAChanged
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
@@ -31,7 +41,7 @@ func TestGetDiff_FirstFileMissing(t *testing.T) {
 
 func TestGetDiff_SecondFileMissing(t *testing.T) {
 	dir := t.TempDir()
-	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
+	file1 := WriteTempJSON(t, dir, testFile1JSON, `{"a":1}`)
 
 	_, err := GetDiff(file1, "missing2.json")
 
@@ -42,49 +52,49 @@ func TestGetDiff_SecondFileMissing(t *testing.T) {
 
 func TestGetDiff_IdenticalFiles(t *testing.T) {
 	dir := t.TempDir()
-	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
-	file2 := WriteTempJSON(t, dir, "file2.json", `{"a":1}`)
+	file1 := WriteTempJSON(t, dir, testFile1JSON, `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, testFile2JSON, `{"a":1}`)
 
 	got, err := GetDiff(file1, file2)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf(errUnexpected, err)
 	}
 
 	expected := "{\n..  a: 1\n}"
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
 func TestGetDiff_KeysOnlyInFirstFile(t *testing.T) {
 	dir := t.TempDir()
-	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
-	file2 := WriteTempJSON(t, dir, "file2.json", `{}`)
+	file1 := WriteTempJSON(t, dir, testFile1JSON, `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, testFile2JSON, `{}`)
 
 	got, err := GetDiff(file1, file2)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf(errUnexpected, err)
 	}
 
 	expected := "{\n..- a: 1\n}"
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
 func TestGetDiff_KeysOnlyInSecondFile(t *testing.T) {
 	dir := t.TempDir()
-	file1 := WriteTempJSON(t, dir, "file1.json", `{}`)
-	file2 := WriteTempJSON(t, dir, "file2.json", `{"b":2}`)
+	file1 := WriteTempJSON(t, dir, testFile1JSON, `{}`)
+	file2 := WriteTempJSON(t, dir, testFile2JSON, `{"b":2}`)
 
 	got, err := GetDiff(file1, file2)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf(errUnexpected, err)
 	}
 
 	expected := "{\n..+ b: 2\n}"
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
@@ -95,12 +105,12 @@ func TestGetDiff_YAMLFilesChangedValue(t *testing.T) {
 
 	got, err := GetDiff(file1, file2)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf(errUnexpected, err)
 	}
 
-	expected := "{\n..- a: 1\n..+ a: 2\n}"
+	expected := diffAChanged
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
@@ -111,12 +121,12 @@ func TestGetDiff_YAMLFilesIdentical(t *testing.T) {
 
 	got, err := GetDiff(file1, file2)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf(errUnexpected, err)
 	}
 
 	expected := "{\n..  host: hexlet.io\n}"
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
@@ -127,19 +137,19 @@ func TestGetDiff_YAMLFilesKeyRemoved(t *testing.T) {
 
 	got, err := GetDiff(file1, file2)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf(errUnexpected, err)
 	}
 
 	expected := "{\n..  a: 1\n..- b: 2\n}"
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
 
 func TestGetDiff_NestedStructures(t *testing.T) {
 	got, err := GetDiff("mock/file1.json", "mock/file2.json")
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf(errUnexpected, err)
 	}
 
 	expected := "{\n" +
@@ -193,16 +203,48 @@ func TestGetDiff_NestedStructures(t *testing.T) {
 
 func TestGetDiff_MixedJSONAndYAML(t *testing.T) {
 	dir := t.TempDir()
-	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
+	file1 := WriteTempJSON(t, dir, testFile1JSON, `{"a":1}`)
 	file2 := WriteTempYAML(t, dir, "file2.yaml", "a: 2\n")
 
 	got, err := GetDiff(file1, file2)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf(errUnexpected, err)
 	}
 
-	expected := "{\n..- a: 1\n..+ a: 2\n}"
+	expected := diffAChanged
 	if got != expected {
-		t.Fatalf("got %q, want %q", got, expected)
+		t.Fatalf(assertGotWant, got, expected)
+	}
+}
+
+func TestGetDiffWithFormatter_CustomFormatter(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempJSON(t, dir, testFile1JSON, `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, testFile2JSON, `{"a":2}`)
+
+	customFmt := func(nodes []diff.DiffNode) string {
+		return "custom"
+	}
+	got, err := GetDiffWithFormatter(file1, file2, customFmt)
+	if err != nil {
+		t.Fatalf(errUnexpected, err)
+	}
+	if got != "custom" {
+		t.Fatalf(assertGotWant, got, "custom")
+	}
+}
+
+func TestGetDiffWithFormatter_DefaultIsStylish(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempJSON(t, dir, testFile1JSON, `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, testFile2JSON, `{"a":2}`)
+
+	got, err := GetDiffWithFormatter(file1, file2, formatters.FormatStylish)
+	if err != nil {
+		t.Fatalf(errUnexpected, err)
+	}
+	expected := diffAChanged
+	if got != expected {
+		t.Fatalf(assertGotWant, got, expected)
 	}
 }
