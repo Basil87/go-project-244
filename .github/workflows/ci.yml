@@ -21,8 +21,8 @@ jobs:
       - name: Install deps
         run: go mod tidy
 
-      - name: Run tests
-        run: go test ./... -v
+      - name: Run tests with coverage
+        run: go test ./... -coverprofile=coverage.out
 
       - name: Run linter
         uses: golangci/golangci-lint-action@v7
@@ -33,6 +33,3 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Run tests with coverage
-        run: go test ./... -coverprofile=coverage.out
