@@ -27,6 +27,39 @@ func TestFormatStylish_FlatDiff(t *testing.T) {
 	}
 }
 
+func TestFormatStylish_MapValue(t *testing.T) {
+	nodes := []diff.DiffNode{
+		{Key: "obj", Status: diff.StatusRemoved, OldVal: map[string]any{"x": float64(1)}},
+	}
+	got := FormatStylish(nodes)
+	expected := "{\n..- obj: {\n......  x: 1\n....}\n}"
+	if got != expected {
+		t.Fatalf(assertGotWant, got, expected)
+	}
+}
+
+func TestFormatStylish_NilValue(t *testing.T) {
+	nodes := []diff.DiffNode{
+		{Key: "a", Status: diff.StatusAdded, NewVal: nil},
+	}
+	got := FormatStylish(nodes)
+	expected := "{\n..+ a: null\n}"
+	if got != expected {
+		t.Fatalf(assertGotWant, got, expected)
+	}
+}
+
+func TestFormatStylish_NonIntegerFloat(t *testing.T) {
+	nodes := []diff.DiffNode{
+		{Key: "pi", Status: diff.StatusAdded, NewVal: 3.14},
+	}
+	got := FormatStylish(nodes)
+	expected := "{\n..+ pi: 3.14\n}"
+	if got != expected {
+		t.Fatalf(assertGotWant, got, expected)
+	}
+}
+
 func TestFormatStylish_Nested(t *testing.T) {
 	nodes := []diff.DiffNode{
 		{
