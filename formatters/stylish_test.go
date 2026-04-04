@@ -1,0 +1,43 @@
+package formatters
+
+import (
+	"code/diff"
+	"testing"
+)
+
+func TestFormatStylish_Empty(t *testing.T) {
+	got := FormatStylish([]diff.DiffNode{})
+	expected := "{\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestFormatStylish_FlatDiff(t *testing.T) {
+	nodes := []diff.DiffNode{
+		{Key: "a", Status: diff.StatusRemoved, OldVal: float64(1)},
+		{Key: "a", Status: diff.StatusAdded, NewVal: float64(2)},
+	}
+	got := FormatStylish(nodes)
+	expected := "{\n..- a: 1\n..+ a: 2\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestFormatStylish_Nested(t *testing.T) {
+	nodes := []diff.DiffNode{
+		{
+			Key:    "obj",
+			Status: diff.StatusNested,
+			Children: []diff.DiffNode{
+				{Key: "x", Status: diff.StatusUnchanged, OldVal: "hello"},
+			},
+		},
+	}
+	got := FormatStylish(nodes)
+	expected := "{\n..  obj: {\n......  x: hello\n....}\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}

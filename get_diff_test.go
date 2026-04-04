@@ -1,6 +1,8 @@
 package code
 
 import (
+	"code/diff"
+	"code/formatters"
 	"testing"
 )
 
@@ -201,6 +203,38 @@ func TestGetDiff_MixedJSONAndYAML(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
+	expected := "{\n..- a: 1\n..+ a: 2\n}"
+	if got != expected {
+		t.Fatalf("got %q, want %q", got, expected)
+	}
+}
+
+func TestGetDiffWithFormatter_CustomFormatter(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, "file2.json", `{"a":2}`)
+
+	customFmt := func(nodes []diff.DiffNode) string {
+		return "custom"
+	}
+	got, err := GetDiffWithFormatter(file1, file2, customFmt)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != "custom" {
+		t.Fatalf("got %q, want %q", got, "custom")
+	}
+}
+
+func TestGetDiffWithFormatter_DefaultIsStylish(t *testing.T) {
+	dir := t.TempDir()
+	file1 := WriteTempJSON(t, dir, "file1.json", `{"a":1}`)
+	file2 := WriteTempJSON(t, dir, "file2.json", `{"a":2}`)
+
+	got, err := GetDiffWithFormatter(file1, file2, formatters.FormatStylish)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	expected := "{\n..- a: 1\n..+ a: 2\n}"
 	if got != expected {
 		t.Fatalf("got %q, want %q", got, expected)
