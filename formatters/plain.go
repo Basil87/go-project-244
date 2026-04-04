@@ -1,9 +1,9 @@
 package formatters
 
 import (
-	"code/diff"
 	"fmt"
 	"strings"
+	"code/diff"
 )
 
 func FormatPlain(nodes []diff.DiffNode) string {
@@ -19,11 +19,11 @@ func renderPlain(nodes []diff.DiffNode, prefix string) string {
 		}
 		switch node.Status {
 		case diff.StatusAdded:
-			sb.WriteString(fmt.Sprintf("Property '%s' was added with value: %s\n", path, plainValue(node.NewVal)))
+			fmt.Fprintf(&sb, "Property '%s' was added with value: %s\n", path, plainValue(node.NewVal))
 		case diff.StatusRemoved:
-			sb.WriteString(fmt.Sprintf("Property '%s' was removed\n", path))
+			fmt.Fprintf(&sb, "Property '%s' was removed\n", path)
 		case diff.StatusChanged:
-			sb.WriteString(fmt.Sprintf("Property '%s' was updated. From %s to %s\n", path, plainValue(node.OldVal), plainValue(node.NewVal)))
+			fmt.Fprintf(&sb, "Property '%s' was updated. From %s to %s\n", path, plainValue(node.OldVal), plainValue(node.NewVal))
 		case diff.StatusNested:
 			sb.WriteString(renderPlain(node.Children, path))
 		}

@@ -78,7 +78,9 @@ func detectFileType(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	buffer := make([]byte, 512)
 	n, err := f.Read(buffer)

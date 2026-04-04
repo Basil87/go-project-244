@@ -19,16 +19,16 @@ func renderDiff(nodes []diff.DiffNode, depth int) string {
 	for _, node := range nodes {
 		switch node.Status {
 		case diff.StatusNested:
-			sb.WriteString(fmt.Sprintf("%s  %s: %s\n", signPrefix, node.Key, renderDiff(node.Children, depth+1)))
+			fmt.Fprintf(&sb, "%s  %s: %s\n", signPrefix, node.Key, renderDiff(node.Children, depth+1))
 		case diff.StatusUnchanged:
-			sb.WriteString(fmt.Sprintf("%s  %s: %s\n", signPrefix, node.Key, formatValue(node.OldVal, depth)))
+			fmt.Fprintf(&sb, "%s  %s: %s\n", signPrefix, node.Key, formatValue(node.OldVal, depth))
 		case diff.StatusRemoved:
-			sb.WriteString(fmt.Sprintf("%s- %s: %s\n", signPrefix, node.Key, formatValue(node.OldVal, depth)))
+			fmt.Fprintf(&sb, "%s- %s: %s\n", signPrefix, node.Key, formatValue(node.OldVal, depth))
 		case diff.StatusAdded:
-			sb.WriteString(fmt.Sprintf("%s+ %s: %s\n", signPrefix, node.Key, formatValue(node.NewVal, depth)))
+			fmt.Fprintf(&sb, "%s+ %s: %s\n", signPrefix, node.Key, formatValue(node.NewVal, depth))
 		case diff.StatusChanged:
-			sb.WriteString(fmt.Sprintf("%s- %s: %s\n", signPrefix, node.Key, formatValue(node.OldVal, depth)))
-			sb.WriteString(fmt.Sprintf("%s+ %s: %s\n", signPrefix, node.Key, formatValue(node.NewVal, depth)))
+			fmt.Fprintf(&sb, "%s- %s: %s\n", signPrefix, node.Key, formatValue(node.OldVal, depth))
+			fmt.Fprintf(&sb, "%s+ %s: %s\n", signPrefix, node.Key, formatValue(node.NewVal, depth))
 		}
 	}
 	sb.WriteString(indent + "}")
@@ -46,7 +46,7 @@ func renderMap(m map[string]any, depth int) string {
 	var sb strings.Builder
 	sb.WriteString("{\n")
 	for _, k := range keys {
-		sb.WriteString(fmt.Sprintf("%s  %s: %s\n", signPrefix, k, formatValue(m[k], depth)))
+		fmt.Fprintf(&sb, "%s  %s: %s\n", signPrefix, k, formatValue(m[k], depth))
 	}
 	sb.WriteString(indent + "}")
 	return sb.String()
