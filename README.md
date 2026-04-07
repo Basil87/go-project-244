@@ -11,10 +11,11 @@
 [![asciicast](https://asciinema.org/a/EPwuCY5BQL58OZck.svg)](https://asciinema.org/a/EPwuCY5BQL58OZck)
 
 ### asciinema recording 3:
-[![asciicast](https://asciinema.org/a/demo2.cast.svg)](https://asciinema.org/a/demo2.cast)
+[![asciicast](https://asciinema.org/a/ltRRSjG75bTbe2q1.svg)](https://asciinema.org/a/ltRRSjG75bTbe2q1)
 
 ### asciinema recording 4:
-[![asciicast](https://asciinema.org/a/demo3.cast.svg)](https://asciinema.org/a/demo3.cast)
+[![asciicast](https://asciinema.org/a/nCJNwwXr4nX6BK9I.svg)](https://asciinema.org/a/nCJNwwXr4nX6BK9I)
+
 
 
 
