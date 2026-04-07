@@ -7,7 +7,14 @@
 ### asciinema recording:
 [![asciicast](https://asciinema.org/a/0BqyMY0Ky9AnYY7I.svg)](https://asciinema.org/a/0BqyMY0Ky9AnYY7I)
 
-### asciinema recording (new):
+### asciinema recording 2:
 [![asciicast](https://asciinema.org/a/EPwuCY5BQL58OZck.svg)](https://asciinema.org/a/EPwuCY5BQL58OZck)
+
+### asciinema recording 3:
+[![asciicast](https://asciinema.org/a/demo2.cast.svg)](https://asciinema.org/a/demo2.cast)
+
+### asciinema recording 4:
+[![asciicast](https://asciinema.org/a/demo3.cast.svg)](https://asciinema.org/a/demo3.cast)
+
 
 
