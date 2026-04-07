@@ -17,7 +17,7 @@ import (
 
 type Formatter func([]diff.DiffNode) string
 
-func GetDiffWithFormatter(file1, file2 string, format Formatter) (string, error) {
+func GetDiff(file1, file2 string, format Formatter) (string, error) {
 	fileContent1, err := GetFileData(file1)
 	if err != nil {
 		return "", err
