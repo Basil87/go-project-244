@@ -2,7 +2,6 @@ package main
 
 import (
 	"code"
-	"code/formatters"
 	"context"
 	"fmt"
 	"log"
@@ -34,8 +33,7 @@ func main() {
 
 			file1 := cmd.Args().Get(0)
 			file2 := cmd.Args().Get(1)
-			formatter := formatters.GetFormatter(cmd.String("format"))
-			result, err := code.GenDiff(file1, file2, formatter)
+			result, err := code.GenDiff(file1, file2, cmd.String("format"))
 			if err != nil {
 				return err
 			}

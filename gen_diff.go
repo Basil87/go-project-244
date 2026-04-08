@@ -2,7 +2,7 @@ package code
 
 import (
 	"code/diff"
-	// "code/formatters"
+	"code/formatters"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -17,7 +17,7 @@ import (
 
 type Formatter func([]diff.DiffNode) string
 
-func GenDiff(file1, file2 string, format Formatter) (string, error) {
+func GenDiff(file1, file2, format string) (string, error) {
 	fileContent1, err := GetFileData(file1)
 	if err != nil {
 		return "", err
@@ -26,7 +26,7 @@ func GenDiff(file1, file2 string, format Formatter) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return format(buildDiff(fileContent1, fileContent2)), nil
+	return formatters.GetFormatter(format)(buildDiff(fileContent1, fileContent2)), nil
 }
 
 func GetFileData(path string) (map[string]any, error) {
