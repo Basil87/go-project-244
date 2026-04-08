@@ -32,18 +32,3 @@ func toJSONMap(nodes []diff.DiffNode) map[string]any {
 	}
 	return result
 }
-
-func diffStatusString(s diff.DiffStatus) string {
-	switch s {
-	case diff.StatusAdded:
-		return "added"
-	case diff.StatusRemoved:
-		return "removed"
-	case diff.StatusChanged:
-		return "changed"
-	case diff.StatusNested:
-		return "nested"
-	default:
-		return "unchanged"
-	}
-}
