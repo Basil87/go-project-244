@@ -52,7 +52,7 @@ func TestGenDiff_JSONFormat(t *testing.T) {
 	if err != nil {
 		t.Fatalf(errUnexpectedGenDiff, err)
 	}
-	if !strings.Contains(got, `"status": "unchanged"`) {
+	if !strings.Contains(got, `"type": "unchanged"`) {
 		t.Fatalf("json output missing expected status field, got: %q", got)
 	}
 }
