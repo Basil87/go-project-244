@@ -21,7 +21,7 @@ func TestFormatStylish_FlatDiff(t *testing.T) {
 		{Key: "a", Status: diff.StatusAdded, NewVal: float64(2)},
 	}
 	got := FormatStylish(nodes)
-	expected := "{\n..- a: 1\n..+ a: 2\n}"
+	expected := "{\n  - a: 1\n  + a: 2\n}"
 	if got != expected {
 		t.Fatalf(assertGotWant, got, expected)
 	}
@@ -32,7 +32,7 @@ func TestFormatStylish_MapValue(t *testing.T) {
 		{Key: "obj", Status: diff.StatusRemoved, OldVal: map[string]any{"x": float64(1)}},
 	}
 	got := FormatStylish(nodes)
-	expected := "{\n..- obj: {\n......  x: 1\n....}\n}"
+	expected := "{\n  - obj: {\n        x: 1\n    }\n}"
 	if got != expected {
 		t.Fatalf(assertGotWant, got, expected)
 	}
@@ -43,7 +43,7 @@ func TestFormatStylish_NilValue(t *testing.T) {
 		{Key: "a", Status: diff.StatusAdded, NewVal: nil},
 	}
 	got := FormatStylish(nodes)
-	expected := "{\n..+ a: null\n}"
+	expected := "{\n  + a: null\n}"
 	if got != expected {
 		t.Fatalf(assertGotWant, got, expected)
 	}
@@ -54,7 +54,7 @@ func TestFormatStylish_NonIntegerFloat(t *testing.T) {
 		{Key: "pi", Status: diff.StatusAdded, NewVal: 3.14},
 	}
 	got := FormatStylish(nodes)
-	expected := "{\n..+ pi: 3.14\n}"
+	expected := "{\n  + pi: 3.14\n}"
 	if got != expected {
 		t.Fatalf(assertGotWant, got, expected)
 	}
@@ -71,7 +71,7 @@ func TestFormatStylish_Nested(t *testing.T) {
 		},
 	}
 	got := FormatStylish(nodes)
-	expected := "{\n..  obj: {\n......  x: hello\n....}\n}"
+	expected := "{\n    obj: {\n        x: hello\n    }\n}"
 	if got != expected {
 		t.Fatalf(assertGotWant, got, expected)
 	}

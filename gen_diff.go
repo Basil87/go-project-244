@@ -17,11 +17,7 @@ import (
 
 type Formatter func([]diff.DiffNode) string
 
-func GetDiff(file1, file2 string) (string, error) {
-	return GetDiffWithFormatter(file1, file2, formatters.FormatStylish)
-}
-
-func GetDiffWithFormatter(file1, file2 string, format Formatter) (string, error) {
+func GenDiff(file1, file2, format string) (string, error) {
 	fileContent1, err := GetFileData(file1)
 	if err != nil {
 		return "", err
@@ -30,7 +26,7 @@ func GetDiffWithFormatter(file1, file2 string, format Formatter) (string, error)
 	if err != nil {
 		return "", err
 	}
-	return format(buildDiff(fileContent1, fileContent2)), nil
+	return formatters.GetFormatter(format)(buildDiff(fileContent1, fileContent2)), nil
 }
 
 func GetFileData(path string) (map[string]any, error) {
@@ -92,10 +88,6 @@ func detectFileType(path string) (string, error) {
 	return contentType, nil
 }
 
-func compareJsons(fileContent1, fileContent2 map[string]any) (string, error) {
-	return formatters.FormatStylish(buildDiff(fileContent1, fileContent2)), nil
-}
-
 func buildDiff(m1, m2 map[string]any) []diff.DiffNode {
 	keys := allKeys(m1, m2)
 	sort.Strings(keys)
@@ -136,22 +128,4 @@ func allKeys(m1, m2 map[string]any) []string {
 		keys = append(keys, k)
 	}
 	return keys
-}
-
-func prefixOrder(s string) int {
-	if strings.HasPrefix(s, "- ") {
-		return 0
-	}
-	if strings.HasPrefix(s, "+ ") {
-		return 2
-	}
-	return 1
-}
-
-func normalize(s string) string {
-	s = strings.TrimSpace(s)
-	if strings.HasPrefix(s, "+ ") || strings.HasPrefix(s, "- ") {
-		return s[2:]
-	}
-	return s
 }
