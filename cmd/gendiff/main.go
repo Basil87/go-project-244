@@ -4,14 +4,15 @@ import (
 	"code"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
 	"github.com/urfave/cli/v3"
 )
 
-func main() {
-	cmd := &cli.Command{
+func newCmd(w io.Writer) *cli.Command {
+	return &cli.Command{
 		Name:  "difference-calculator",
 		Usage: "Compare and get diff of structs",
 
@@ -25,9 +26,8 @@ func main() {
 		},
 
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-
 			if cmd.Args().Len() == 0 {
-				fmt.Println("path is required")
+				fmt.Fprintln(w, "path is required")
 				return nil
 			}
 
@@ -38,11 +38,13 @@ func main() {
 				return err
 			}
 
-			fmt.Println(result)
+			fmt.Fprintln(w, result)
 			return nil
 		},
 	}
+}
 
+func main() {
 	cli.RootCommandHelpTemplate = `
 	./bin/gendiff --help
 	NAME:
@@ -56,7 +58,7 @@ func main() {
 	   --help, -h                  show help
 `
 
-	if err := cmd.Run(context.Background(), os.Args); err != nil {
+	if err := newCmd(os.Stdout).Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)
 	}
 }
