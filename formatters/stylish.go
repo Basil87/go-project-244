@@ -13,6 +13,7 @@ const (
 	fmtAdded     = "%s+ %s: %s\n"
 )
 
+// FormatStylish formats the diff in the stylish tree format with +/- prefixes and indentation.
 func FormatStylish(nodes []diff.DiffNode) string {
 	return renderDiff(nodes, 1)
 }

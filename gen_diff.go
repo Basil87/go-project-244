@@ -15,8 +15,11 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+// Formatter is a function that converts a slice of DiffNodes into a formatted string.
 type Formatter func([]diff.DiffNode) string
 
+// GenDiff compares two files and returns their diff as a formatted string.
+// Supported formats: "stylish" (default), "plain", "json".
 func GenDiff(file1, file2, format string) (string, error) {
 	fileContent1, err := GetFileData(file1)
 	if err != nil {
@@ -29,6 +32,8 @@ func GenDiff(file1, file2, format string) (string, error) {
 	return formatters.GetFormatter(format)(buildDiff(fileContent1, fileContent2)), nil
 }
 
+// GetFileData reads and parses a JSON or YAML file at the given path.
+// Returns a map of key-value pairs or an error if the file cannot be read or parsed.
 func GetFileData(path string) (map[string]any, error) {
 	info, err := os.Stat(path)
 
