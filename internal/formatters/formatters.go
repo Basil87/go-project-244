@@ -1,7 +1,9 @@
 package formatters
 
-import "code/diff"
+import "code/internal/diff"
 
+// GetFormatter returns the formatter function for the given format name.
+// Recognised values: "plain", "json". Any other value returns FormatStylish.
 func GetFormatter(format string) func([]diff.DiffNode) string {
 	switch format {
 	case "plain":

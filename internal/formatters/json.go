@@ -1,10 +1,12 @@
 package formatters
 
 import (
-	"code/diff"
+	"code/internal/diff"
 	"encoding/json"
 )
 
+// FormatJSON formats the diff as a JSON object keyed by property name.
+// Each entry describes the change type and relevant values.
 func FormatJSON(nodes []diff.DiffNode) string {
 	m := toJSONMap(nodes)
 	data, err := json.MarshalIndent(m, "", "    ")

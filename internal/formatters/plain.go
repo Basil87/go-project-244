@@ -1,11 +1,13 @@
 package formatters
 
 import (
+	"code/internal/diff"
 	"fmt"
 	"strings"
-	"code/diff"
 )
 
+// FormatPlain formats the diff as human-readable plain text,
+// describing each change as a sentence (added / removed / updated).
 func FormatPlain(nodes []diff.DiffNode) string {
 	return strings.TrimRight(renderPlain(nodes, ""), "\n")
 }

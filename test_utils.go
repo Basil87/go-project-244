@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// WriteTempJSON creates a temporary JSON file in dir with the given name and content.
 func WriteTempJSON(t *testing.T, dir, name, content string) string {
 	t.Helper()
 
@@ -19,6 +20,7 @@ func WriteTempJSON(t *testing.T, dir, name, content string) string {
 	return path
 }
 
+// WriteTempYAML creates a temporary YAML file in dir with the given name and content.
 func WriteTempYAML(t *testing.T, dir, name, content string) string {
 	t.Helper()
 
