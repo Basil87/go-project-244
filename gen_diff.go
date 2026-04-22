@@ -5,7 +5,6 @@ import (
 	"code/internal/formatters"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -41,13 +40,8 @@ func getFileData(path string) (map[string]any, error) {
 		return fileContent, fmt.Errorf("expected file, not a directory")
 	}
 
-	contentType, err := detectFileType(path)
 	if err != nil {
 		return fileContent, err
-	}
-
-	if contentType != "application/json" && contentType != "text/plain; charset=utf-8" {
-		return fileContent, fmt.Errorf("unsupported file type: %s", contentType)
 	}
 
 	data, err := os.ReadFile(path)
@@ -67,25 +61,6 @@ func getFileData(path string) (map[string]any, error) {
 	}
 
 	return fileContent, nil
-}
-
-func detectFileType(path string) (string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
-	buffer := make([]byte, 512)
-	n, err := f.Read(buffer)
-	if err != nil {
-		return "", err
-	}
-
-	contentType := http.DetectContentType(buffer[:n])
-	return contentType, nil
 }
 
 func buildDiff(m1, m2 map[string]any) []diff.DiffNode {
