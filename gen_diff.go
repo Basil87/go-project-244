@@ -5,9 +5,11 @@ import (
 	"code/internal/formatters"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"sort"
 	"strings"
 
@@ -91,16 +93,9 @@ func buildDiff(m1, m2 map[string]any) []diff.DiffNode {
 }
 
 func allKeys(m1, m2 map[string]any) []string {
-	seen := make(map[string]bool)
-	for k := range m1 {
-		seen[k] = true
-	}
-	for k := range m2 {
-		seen[k] = true
-	}
-	keys := make([]string, 0, len(seen))
-	for k := range seen {
-		keys = append(keys, k)
-	}
-	return keys
+	merged := make(map[string]any)
+	maps.Copy(merged, m1)
+	maps.Copy(merged, m2)
+
+	return slices.Collect(maps.Keys(merged))
 }
