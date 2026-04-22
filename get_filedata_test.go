@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetFileData_FileNotFound(t *testing.T) {
-	_, err := GetFileData("nonexistent.json")
+	_, err := getFileData("nonexistent.json")
 
 	if err == nil {
 		t.Fatal("expected error")
@@ -19,7 +19,7 @@ func TestGetFileData_FileNotFound(t *testing.T) {
 func TestGetFileData_IsDirectory(t *testing.T) {
 	dir := t.TempDir()
 
-	_, err := GetFileData(dir)
+	_, err := getFileData(dir)
 
 	if err == nil {
 		t.Fatal("expected error")
@@ -33,7 +33,7 @@ func TestGetFileData_InvalidJSON(t *testing.T) {
 	dir := t.TempDir()
 	path := WriteTempJSON(t, dir, "bad.json", `not valid json`)
 
-	_, err := GetFileData(path)
+	_, err := getFileData(path)
 
 	if err == nil {
 		t.Fatal("expected error")
@@ -47,7 +47,7 @@ func TestGetFileData_ValidJSON(t *testing.T) {
 	dir := t.TempDir()
 	path := WriteTempJSON(t, dir, "file.json", `{"key":"value","num":42}`)
 
-	got, err := GetFileData(path)
+	got, err := getFileData(path)
 
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -64,7 +64,7 @@ func TestGetFileData_ValidYAML(t *testing.T) {
 	dir := t.TempDir()
 	path := WriteTempYAML(t, dir, "file.yaml", "key: value\nnum: 42\n")
 
-	got, err := GetFileData(path)
+	got, err := getFileData(path)
 
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -81,7 +81,7 @@ func TestGetFileData_InvalidYAML(t *testing.T) {
 	dir := t.TempDir()
 	path := WriteTempYAML(t, dir, "bad.yaml", "key: {unclosed\n")
 
-	_, err := GetFileData(path)
+	_, err := getFileData(path)
 
 	if err == nil {
 		t.Fatal("expected error")
@@ -95,7 +95,7 @@ func TestGetFileData_ValidYMLExtension(t *testing.T) {
 	dir := t.TempDir()
 	path := WriteTempYAML(t, dir, "file.yml", "a: 1\nb: hello\n")
 
-	got, err := GetFileData(path)
+	got, err := getFileData(path)
 
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
